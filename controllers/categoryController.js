@@ -10,7 +10,10 @@ exports.createCategory = async (req, res) => {
       name,
       keyword,
       title,
-      image,
+      image: {
+        public_id: "sample_img",
+        url: "https://res.cloudinary.com/dhhlsvxwf/image/upload/v1682651084/categoires/iagyxwq3snaxsdnicprr.jpg",
+      },
     });
     await category.save();
     res.send(success(200, category));

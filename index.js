@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 4001;
 const origin = "http://localhost:3000";
 //Middlewares
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.json({limit : "20mb"}));
 app.use(morgan("common"));
 app.use(
   cors({
