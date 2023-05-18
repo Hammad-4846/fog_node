@@ -22,7 +22,7 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 exports.loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    console.log("This is email and pass",email,password);
+    console.log("This is email and pass", email, password);
 
     if (!email || !password) {
       return res.send(error(401, "Please Enter Valid Email And Password"));
@@ -106,3 +106,23 @@ exports.updatePassword = catchAsyncErrors(async (req, res, next) => {
     message: "User Data is Succesfully Updated",
   });
 });
+
+//Admin Controller
+exports.getAllUsers = async (req, res) => {
+  try {
+    const allUsers = await User.find();
+    res.send(success(200, allUsers));
+  } catch (e) {
+    res.send(error(500, e.message));
+  }
+};
+
+//Delete Product
+exports.deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    res.send(success(200, "User Is Delete Succesfully"));
+  } catch (e) {
+    res.send(error(500, e.message));
+  }
+};
