@@ -1,36 +1,35 @@
 const Product = require("../models/ProductModal");
 const { success, error } = require("../utils/responseWrapper");
 const ApiFeatures = require("../utils/apiFeature");
+const cloudinary = require("cloudinary");
 
 exports.createProduct = async (req, res) => {
   try {
-    const {
-      name,
-      description,
-      stock,
-      price,
-      category,
-      longDescription,
-      images,
-      weight,
-      discountedPrice,
-    } = req.body;
-    const product = await Product.create({
-      name,
-      description,
-      stock,
-      price,
-      category,
-      longDescription,
-      weight,
-      discountedPrice,
-      images: {
-        public_id: "sample_img",
-        url: "https://res.cloudinary.com/dhhlsvxwf/image/upload/v1682651084/categoires/iagyxwq3snaxsdnicprr.jpg",
-      },
-    });
+    let images = [];
 
-    await product.save();
+    if (typeof req.body.images === "string") {
+      images.push(req.body.images);
+    } else {
+      images = req.body.images;
+    }
+
+    const imagesLinks = [];
+
+    for (let i = 0; i < images.length; i++) {
+      const result = await cloudinary.v2.uploader.upload(images[i], {
+        folder: "products",
+      });
+
+      imagesLinks.push({
+        public_id: result.public_id,
+        url: result.secure_url,
+      });
+    }
+
+    req.body.images = imagesLinks;
+    // req.body.user = req.user.id;
+
+    const product = await Product.create(req.body);
 
     res.send(success(200, product));
   } catch (e) {
@@ -41,9 +40,27 @@ exports.createProduct = async (req, res) => {
 
 exports.getAllProducts = async (req, res) => {
   try {
-    const allProduct = await Product.find();
+    const resultPerPage = 8;
+    const productsCount = await Product.countDocuments();
 
-    res.send(success(200, allProduct));
+    const apiFeature = new ApiFeatures(Product.find(), req.query)
+      .search()
+      .filter();
+
+    let products = await apiFeature.query;
+
+    let filteredProductsCount = products.length;
+
+    apiFeature.pagination(resultPerPage);
+
+    res.send(
+      success(200, {
+        products,
+        productsCount,
+        resultPerPage,
+        filteredProductsCount,
+      })
+    );
   } catch (e) {
     res.send(error(500, e.message));
   }
@@ -79,6 +96,21 @@ exports.deleteProduct = async (req, res, next) => {
     await Product.deleteOne({ _id: req.params.id });
 
     res.send(success(200, "Product Delete Successfully"));
+  } catch (e) {
+    res.send(error(500, e.message));
+  }
+};
+
+// Get Product Details
+exports.getProductDetails = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.send(error(404, "Product Not Found"));
+    }
+
+    res.send(success(200, product));
   } catch (e) {
     res.send(error(500, e.message));
   }
