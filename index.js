@@ -8,6 +8,7 @@ const cloudinary = require("cloudinary").v2;
 const user = require("./routes/userRoute");
 const product = require("./routes/productRoute");
 const category = require("./routes/categoryRoute");
+const utils = require("./routes/utilsRoute");
 
 dotenv.config({ path: "./config/config.env" });
 
@@ -21,7 +22,7 @@ cloudinary.config({
 });
 
 const origin = process.env.ORIGIN;
-//Middlewares 
+//Middlewares
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: "20mb" }));
 app.use(morgan("common"));
@@ -38,6 +39,7 @@ app.get("/", (req, res) => {
 app.use("/api/v1", user);
 app.use("/api/v1", product);
 app.use("/api/v1", category);
+app.use("/api/v1", utils);
 //
 dbConnect();
 
