@@ -78,20 +78,22 @@ exports.getAdminProducts = async (req, res) => {
 };
 
 // Delete Product
-exports.deleteProduct = async (req, res, next) => {
+exports.deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const { id } = req.params;
+
+    const product = await Product.findById(id);
 
     console.log(product);
 
     if (!product) {
-      return next(new ErrorHander("Product not found", 404));
+      return res.send(error(404, "Product not found"));
     }
 
-    // // Deleting Images From Cloudinary
-    // for (let i = 0; i < product.images.length; i++) {
-    //   await cloudinary.v2.uploader.destroy(product.images[i].public_id);
-    // }
+    // Deleting Images From Cloudinary
+    for (let i = 0; i < product.images.length; i++) {
+      await cloudinary.v2.uploader.destroy(product.images[i].public_id);
+    }
 
     await Product.deleteOne({ _id: req.params.id });
 
@@ -109,6 +111,62 @@ exports.getProductDetails = async (req, res) => {
     if (!product) {
       return res.send(error(404, "Product Not Found"));
     }
+
+    res.send(success(200, product));
+  } catch (e) {
+    res.send(error(500, e.message));
+  }
+};
+
+// Update Product -- Admin
+
+exports.updateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(req.params);
+    console.log(typeof id);
+    let product = await Product.findById(id);
+
+    if (!product) {
+      return res.send(error(404, "Product not found"));
+    }
+
+    // Images Start Here
+    let images = [];
+
+    if (typeof req.body.images === "string") {
+      images.push(req.body.images);
+    } else {
+      images = req.body.images;
+    }
+
+    if (images !== undefined) {
+      // Deleting Images From Cloudinary
+      for (let i = 0; i < product.images.length; i++) {
+        await cloudinary.v2.uploader.destroy(product.images[i].public_id);
+      }
+
+      const imagesLinks = [];
+
+      for (let i = 0; i < images.length; i++) {
+        const result = await cloudinary.v2.uploader.upload(images[i], {
+          folder: "products",
+        });
+
+        imagesLinks.push({
+          public_id: result.public_id,
+          url: result.secure_url,
+        });
+      }
+
+      req.body.images = imagesLinks;
+    }
+
+    product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+      useFindAndModify: false,
+    });
 
     res.send(success(200, product));
   } catch (e) {
