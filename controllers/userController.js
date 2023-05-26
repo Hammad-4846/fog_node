@@ -59,13 +59,10 @@ exports.logout = catchAsyncErrors(async (req, res, next) => {
 });
 
 //Get user Detail
-exports.getUserDetails = catchAsyncErrors(async (req, res, next) => {
+exports.getUserDetails = async (req, res, next) => {
   const user = await User.findById(req.user.id);
-  res.status(200).json({
-    success: true,
-    user,
-  });
-});
+  res.send(success(200, user));
+};
 
 //Update user Password
 exports.updatePassword = catchAsyncErrors(async (req, res, next) => {
