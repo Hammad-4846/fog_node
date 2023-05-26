@@ -9,6 +9,7 @@ const user = require("./routes/userRoute");
 const product = require("./routes/productRoute");
 const category = require("./routes/categoryRoute");
 const utils = require("./routes/utilsRoute");
+const cookie = require("cookie-parser")
 
 dotenv.config({ path: "./config/config.env" });
 
@@ -32,6 +33,7 @@ app.use(
     origin,
   })
 );
+app.use(cookie());
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
