@@ -1,6 +1,7 @@
 const Pincode = require("../models/Pincode");
 const { success, error } = require("../utils/responseWrapper");
 const Headers = require("../models/Headers");
+const Coupons = require("../models/Coupons");
 
 //Pincode Controller
 exports.createPincode = async (req, res) => {
@@ -50,6 +51,32 @@ exports.getHeaderLine = async (req, res) => {
   try {
     const Header = await Headers.find();
     res.send(success(200, Header[0].Headline));
+  } catch (e) {
+    res.send(error(500, e.message));
+  }
+};
+
+//Coupon Controller
+exports.createCoupon = async (req, res) => {
+  try {
+    const { couponNumber, discount } = req.body;
+    console.log(couponNumber, discount);
+    const createCoupon = await Coupons.create({
+      couponNumber,
+      discount,
+    });
+    res.send(success(201, createCoupon));
+  } catch (e) {
+    res.send(error(500, e.message));
+  }
+};
+
+//GEt Coupons Controller
+exports.getAllCoupons = async (req, res) => {
+  try {
+    const coupons = await Coupons.find();
+    console.log(coupons);
+    res.send(success(200, coupons));
   } catch (e) {
     res.send(error(500, e.message));
   }
