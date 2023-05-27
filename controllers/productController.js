@@ -122,16 +122,8 @@ exports.getProductDetails = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
-    const {
-      name,
-      category,
-      description,
-      discountedPrice,
-      longDescription,
-      price,
-      weight,
-      Stock,
-    } = req.body;
+    const { name, category, description, weightPrice, longDescription, Stock } =
+      req.body;
     const { id } = req.params;
     let product = await Product.findById(id);
 
@@ -176,9 +168,7 @@ exports.updateProduct = async (req, res) => {
     if (Stock) {
       product.Stock = Stock;
     }
-    if (price) {
-      product.price = price;
-    }
+
     if (longDescription) {
       product.longDescription = longDescription;
     }
@@ -188,8 +178,8 @@ exports.updateProduct = async (req, res) => {
     if (category) {
       product.category = category;
     }
-    if (weight) {
-      product.weight = weight;
+    if (weightPrice) {
+      product.weightPrice = weightPrice;
     }
     if (images) {
       product.images = imagesLinks;

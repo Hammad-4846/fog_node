@@ -18,7 +18,6 @@ const productSchema = new mongoose.Schema({
 
   discountedPrice: {
     type: Number,
-    required: [true, "Please Enter Product Price"],
     maxLength: [8, "Price cannot exceed 8 characters"],
   },
   weightPrice: [],
