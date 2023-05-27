@@ -15,21 +15,13 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please Enter Product Description"],
   },
-  price: {
-    type: Number,
-    required: [true, "Please Enter Product Price"],
-    maxLength: [8, "Price cannot exceed 8 characters"],
-  },
+
   discountedPrice: {
     type: Number,
     required: [true, "Please Enter Product Price"],
     maxLength: [8, "Price cannot exceed 8 characters"],
   },
-  weight: {
-    type: Number,
-    maxLength: [8, "Product Weight cannot exceed 10 characters"],
-  },
-
+  weightPrice: [],
   ratings: {
     type: Number,
     default: 0,
@@ -92,4 +84,3 @@ const productSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("Product", productSchema);
-
