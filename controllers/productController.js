@@ -122,9 +122,17 @@ exports.getProductDetails = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
+    const {
+      name,
+      category,
+      description,
+      discountedPrice,
+      longDescription,
+      price,
+      weight,
+      Stock,
+    } = req.body;
     const { id } = req.params;
-    console.log(req.params);
-    console.log(typeof id);
     let product = await Product.findById(id);
 
     if (!product) {
@@ -162,11 +170,32 @@ exports.updateProduct = async (req, res) => {
       req.body.images = imagesLinks;
     }
 
-    product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-      useFindAndModify: false,
-    });
+    if (name) {
+      product.name = name;
+    }
+    if (Stock) {
+      product.Stock = Stock;
+    }
+    if (price) {
+      product.price = price;
+    }
+    if (longDescription) {
+      product.longDescription = longDescription;
+    }
+    if (description) {
+      product.description = description;
+    }
+    if (category) {
+      product.category = category;
+    }
+    if (weight) {
+      product.weight = weight;
+    }
+    if (images) {
+      product.images = imagesLinks;
+    }
+
+    await product.save();
 
     res.send(success(200, product));
   } catch (e) {
