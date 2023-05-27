@@ -34,7 +34,7 @@ exports.loginUser = async (req, res, next) => {
       return res.send(error(401, "Invalid Email And Password"));
     }
 
-    const isPasswordMatched = user.comparePassword(password);
+    const isPasswordMatched = await user.comparePassword(password);
 
     if (!isPasswordMatched) {
       return res.send(error(401, "Invalid Email And Password"));
@@ -46,17 +46,18 @@ exports.loginUser = async (req, res, next) => {
   }
 };
 
-exports.logout = catchAsyncErrors(async (req, res, next) => {
-  res.cookie("token", null, {
-    expires: new Date(Date.now()),
-    httpOnly: true,
-  });
+exports.logoutController = (req, res) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+    });
 
-  res.status(200).json({
-    success: true,
-    message: "Logged Out",
-  });
-});
+    return res.send(success(200, "Logged out successfully"));
+  } catch (e) {
+    return res.send(error(500, e.message));
+  }
+};
 
 //Get user Detail
 exports.getUserDetails = async (req, res, next) => {
