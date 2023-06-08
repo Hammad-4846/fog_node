@@ -61,7 +61,8 @@ exports.logoutController = (req, res) => {
 
 //Get user Detail
 exports.getUserDetails = async (req, res, next) => {
-  const user = await User.findById(req.user.id);
+  const user = await User.findById(req.user._id);
+  console.log(user);
   res.send(success(200, user));
 };
 
