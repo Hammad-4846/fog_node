@@ -5,6 +5,7 @@ const {
   getHeaderLine,
   createCoupon,
   getAllCoupons,
+  sendContactInformation,
 } = require("../controllers/utilsController");
 
 const router = require("express").Router();
@@ -15,5 +16,6 @@ router.route("/util/header").post(createAndUpdateHeader);
 router.route("/util/header").get(getHeaderLine);
 router.route("/util/coupon/create").post(createCoupon);
 router.route("/util/coupons").get(getAllCoupons);
+router.route("/util/sendMessage").post(sendContactInformation);
 
 module.exports = router;

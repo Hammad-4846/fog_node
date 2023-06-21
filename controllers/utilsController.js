@@ -2,6 +2,7 @@ const Pincode = require("../models/Pincode");
 const { success, error } = require("../utils/responseWrapper");
 const Headers = require("../models/Headers");
 const Coupons = require("../models/Coupons");
+const { sendEmailMessage } = require("../utils/sendMail");
 
 //Pincode Controller
 exports.createPincode = async (req, res) => {
@@ -79,5 +80,28 @@ exports.getAllCoupons = async (req, res) => {
     res.send(success(200, coupons));
   } catch (e) {
     res.send(error(500, e.message));
+  }
+};
+
+exports.sendContactInformation = async (req, res) => {
+  try {
+    const { message, name, email } = req.body;
+
+    try {
+      await sendEmailMessage({
+        email: "agrawalanushka512@gmail.com",
+        subject: `Message from ${name}`,
+        message: `${message}`,
+      });
+
+      res.status(200).json({
+        success: true,
+        message: `Email sent to ${user.email} successfully`,
+      });
+    } catch (e) {
+      return res.send(error(500, e.message));
+    }
+  } catch (e) {
+    return res.send(error(5000, e.message));
   }
 };

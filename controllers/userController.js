@@ -3,6 +3,8 @@ const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const ErrorHandler = require("../utils/ErrorHandler");
 const sendToken = require("../utils/jwtToken");
 const { error, success } = require("../utils/responseWrapper");
+const {sendEmail} = require("../utils/sendMail");
+const crypto = require("crypto");
 
 exports.registerUser = catchAsyncErrors(async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -125,3 +127,79 @@ exports.deleteUser = async (req, res) => {
     res.send(error(500, e.message));
   }
 };
+
+// Forgot Password
+exports.forgotPassword = async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) {
+      return res.send(error(404, "User not found"));
+    }
+
+    // Get ResetPassword Token
+    const resetToken = user.getResetPasswordToken();
+
+    await user.save({ validateBeforeSave: false });
+
+    const resetPasswordUrl = `${req.protocol}://${req.get(
+      "host"
+    )}/password/reset/${resetToken}`;
+
+    const message = `${resetPasswordUrl}`;
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: `GlutenFree Password Recovery`,
+        message,
+      });
+
+      res.status(200).json({
+        success: true,
+        message: `Email sent to ${user.email} successfully`,
+      });
+    } catch (e) {
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+
+      await user.save({ validateBeforeSave: false });
+
+      return res.send(error(500, e.message));
+    }
+  } catch (e) {
+    res.send(error(500, e.message));
+  }
+};
+
+// Reset Password
+exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
+  // creating token hash
+  const resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+
+  const user = await User.findOne({
+    resetPasswordToken,
+    resetPasswordExpire: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return res.send(
+      error(400, "Reset Password Token is invalid or has been expired")
+    );
+  }
+
+  if (req.body.password !== req.body.confirmPassword) {
+    return res.send(error(400, "Password does not password"));
+  }
+
+  user.password = req.body.password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+
+  await user.save();
+
+  sendToken(user, 200, res);
+});

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GLUTENFREE PASSWORD RESET</title>
+    <style>
+        .container{
+            display: flex;
+            height: 100vh;
+            background-color: gainsboro;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .mail__card{
+            width: 500px;
+            height: 250px;
+            background-color: white;
+            border-radius: 6px;
+            padding: 2rem;
+        }
+
+        .mail__card p{
+            font-size: 18px;
+            color: rgb(188, 182, 182);
+            margin-bottom: 12px;
+        }
+
+        .mail__card h4{
+            font-size: 28px;
+            color: rgb(57, 45, 45);
+            margin-bottom: 8px;
+        }
+        .card__top{
+            margin-bottom: 28px;
+        }
+        .btn{
+            background-color: rgb(24, 213, 24);
+            border-radius: 4px;
+            padding: 1rem;
+            text-decoration: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="mail__card">
+            <div class="card__top">
+                <h4>Hey User</h4>
+                <p>Your GLUTENFREE password can be reset by clicking the button below. If you did not request a new password, please ignore this email.</p>
+            </div>
+            <a class="btn" href="${resetTokenLink}">Reset Password</a>
+        </div>
+    </div>
+</body>
+</html>
