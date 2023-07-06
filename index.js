@@ -9,7 +9,10 @@ const user = require("./routes/userRoute");
 const product = require("./routes/productRoute");
 const category = require("./routes/categoryRoute");
 const utils = require("./routes/utilsRoute");
-const cookie = require("cookie-parser")
+const cookie = require("cookie-parser");
+const GoogleStrategy = require("./utils/Provider");
+const passport = require("passport");
+const session = require("express-session");
 
 dotenv.config({ path: "./config/config.env" });
 
@@ -24,6 +27,13 @@ cloudinary.config({
 
 const origin = process.env.ORIGIN;
 //Middlewares
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: "20mb" }));
 app.use(morgan("common"));
@@ -33,7 +43,12 @@ app.use(
     origin,
   })
 );
+
+GoogleStrategy();
 app.use(cookie());
+app.use(passport.authenticate("session"));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.get("/", (req, res) => {
   res.send("Hello World!");

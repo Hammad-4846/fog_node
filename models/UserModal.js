@@ -4,13 +4,16 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
-
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
     maxLength: [30, "Name Cannot Exceed 30 Characters"],
     minLength: [4, "Name Should Have Atleast 4 Characters"],
+  },
+  googleId: {
+    type: String,
+    unique: true,
   },
   email: {
     type: String,
@@ -20,18 +23,18 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, "Please Enter Your Password"],
+    // required: [true, "Please Enter Your Password"],
     minLength: [8, "Password Should be greater than 8character"],
     select: false,
   },
   avatar: {
     public_id: {
       type: String,
-      required: true,
+      // required: true,
     },
     url: {
       type: String,
-      required: true,
+      // required: true,
     },
   },
   resetPasswordToken: String,
@@ -56,7 +59,6 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-
 // Generating Password Reset Token
 userSchema.methods.getResetPasswordToken = function () {
   // Generating Token
@@ -72,6 +74,5 @@ userSchema.methods.getResetPasswordToken = function () {
 
   return resetToken;
 };
-
 
 module.exports = mongoose.model("EcommerceUser", userSchema);
