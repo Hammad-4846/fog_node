@@ -3,7 +3,7 @@ const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const ErrorHandler = require("../utils/ErrorHandler");
 const sendToken = require("../utils/jwtToken");
 const { error, success } = require("../utils/responseWrapper");
-const {sendEmail} = require("../utils/sendMail");
+const { sendEmail } = require("../utils/sendMail");
 const crypto = require("crypto");
 
 exports.registerUser = catchAsyncErrors(async (req, res, next) => {
@@ -24,7 +24,6 @@ exports.registerUser = catchAsyncErrors(async (req, res, next) => {
 exports.loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    console.log("This is email and pass", email, password);
 
     if (!email || !password) {
       return res.send(error(401, "Please Enter Valid Email And Password"));
@@ -62,10 +61,8 @@ exports.logoutController = (req, res) => {
 };
 
 //Get user Detail
-exports.getUserDetails = async (req, res, next) => {
-  const user = await User.findById(req.user._id);
-  console.log(user);
-  res.send(success(200, user));
+exports.getUserDetails = async (req, res) => {
+  res.send(success(200, req.user));
 };
 
 //Update user Password

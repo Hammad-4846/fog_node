@@ -22,7 +22,7 @@ module.exports = (req, res) => {
           if (existingUser) {
             // User already exists, send token
             const token = generateToken(existingUser);
-            return done(null, { user: existingUser,token });
+            return done(null, { user: existingUser, token });
           }
           // User doesn't exist, create a new user with the Google profile information
           const newUser = new User({
@@ -54,7 +54,7 @@ module.exports = (req, res) => {
 
 // Function to generate a token
 const generateToken = (user) => {
-  const token = jwt.sign({ id: toString(user._id) }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRATION_TIME,
   });
 

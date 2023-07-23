@@ -10,7 +10,10 @@ const {
   forgotPassword,
   resetPassword,
 } = require("../controllers/userController");
-const { isAutheticatedUser } = require("../middlewares/isAuthenticated");
+const {
+  isAutheticatedUser,
+  isAuthenticatedAuthUser,
+} = require("../middlewares/isAuthenticated");
 const CreatePassport = require("../utils/Provider");
 const sendToken = require("../utils/jwtToken");
 
@@ -23,11 +26,7 @@ router.route("/password/reset/:token").put(resetPassword);
 
 // Routes for Google authentication
 router.get(
-  "/auth/google",
-  (req, res, next) => {
-    CreatePassport(req, res);
-    next();
-  },
+  "/oauth/google",
   passport.authenticate("google", {
     scope: ["profile", "email"],
   })
@@ -37,26 +36,46 @@ router.get(
   "/auth/login",
   passport.authenticate("google", {
     scope: ["profile", "email"],
-    failureRedirect: "/auth", // Redirect to the login page on authentication failure
-    successRedirect: process.env.FRONTEND_URL,
-  }),
-  (req, res) => {
-    // Redirect to the appropriate page after successful authentication
-    const { user, token } = req.user;
+    successRedirect: "/api/v1/auth/protected",
+    failureRedirect: "/api/v1/auth/failure", // Redirect to the login page on authentication failure
+  })
+  // (req, res) => {
+  //   // Redirect to the appropriate page after successful authentication
+  //   const { user, token } = req.user;
 
-    // You can now access and use the user and token data in the route handler
-    // For example, you can send it as a response or perform additional operations
-    const options = {
-      expires: new Date(
-        Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
-      ),
-      httpOnly: true,
-    };
-    res.cookie("token", token, options);
+  //   // You can now access and use the user and token data in the route handler
+  //   // For example, you can send it as a response or perform additional operations
+  //   const options = {
+  //     expires: new Date(
+  //       Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+  //     ),
+  //     httpOnly: true,
+  //   };
+  //   res.cookie("token", token, options);
 
-    res.json({ user });
-  }
+  //   res.json({ user, success: true });
+  //   // res.redirect(process.env.FRONTEND_URL)
+  // }
 );
+
+router.get("/auth/protected", isAuthenticatedAuthUser, (req, res) => {
+  console.log("Protected Route");
+  const { token } = req.user;
+  // You can now access and use the user and token data in the route handler
+  // For example, you can send it as a response or perform additional operations
+  const options = {
+    expires: new Date(
+      Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+  res.cookie("token", token, options);
+  res.redirect("http://localhost:3000");
+});
+
+router.get("/auth/failure", (req, res) => {
+  res.send("oops Something is not right here");
+});
 
 router.route("/admin/users").get(getAllUsers);
 router.route("/admin/user/:id").delete(deleteUser);
